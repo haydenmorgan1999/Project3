@@ -3,3 +3,33 @@ title: "Modeling"
 author: "Hayden Morgan"
 format: html
 ---
+
+```{r}
+library("tidyverse")
+library("tidymodels")
+library("caret")
+library("yardstick")
+```
+
+## Basic Introduction
+
+Split data into training (70%) and test (30%). Use set.seed() to make things reproducible.
+```{r}
+
+set.seed(100)
+
+split <- initial_split(diabetes, prop = 0.7)
+train <- training(split)
+test <- testing(split)
+
+```
+
+The goal is to create models for predicting Diabetes_binary (ok to use caret package). Use logLoss as metric to evaluate. For all model types use logLoss with 5 fold CV to select best model. Set up your own grid of tuning parameters in any model where possible. 
+
+## Logistic Regression Models
+
+## Classification Tree
+
+## Random Forest
+
+## Final Model Selection

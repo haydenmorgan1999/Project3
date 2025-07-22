@@ -4,4 +4,23 @@ author: "Hayden Morgan"
 format: html
 ---
 
-At the bottom of the EDA file, give a link to the modeling page: [Click here](Modeling.html)
+## Introduction Section
+
+**Briefly describe the data and the variables you have to work with.**
+
+**Describe the purpose of your EDA and ultimate goal of modeling.**
+
+## Data
+
+Use a relative path to import data. You likely want to convert a lot of the variables to factors with meaningful level names. Check missingness, etc. The response variable is Diabetes_binary.
+```{r}
+
+diabetes <- read.csv("data/diabetes_binary_health_indicators_BRFSS2015.csv")
+
+```
+
+## Summarizations
+
+Produce meaningful summary statistic and plots about the data you are working with (especially as it relates to your response.) Do EDA on full data even though we haven't split into training/test data first. Be sure to have a narrative about what you are exploringa dn what the summaries and graphs you created say about the relationships in your data. 
+
+At the bottom of the EDA file, give a link to the modeling page: [Click here for the Modeling Page](Modeling.html)
