@@ -2,25 +2,115 @@
 title: "EDA"
 author: "Hayden Morgan"
 format: html
+editor_options: 
+  chunk_output_type: console
 ---
+
+```{r}
+library("dplyr")
+```
 
 ## Introduction Section
 
 **Briefly describe the data and the variables you have to work with.**
+For this project, we are using a specific portion of the Diabetes Health Indicators dataset. The data we are working with is clean data that contains survey responses from the CDC. We are told that the response variable is Diabetes_binary, where 0 means the person does not have diabetes and 1 means the person does have diabetes (or pre-diabetes). The data includes 21 variables total. The project instructions tells us to pick 3 variables (aside from the response) to explore further. I chose to focus on **physical activity (0 means no physical activity in the past 30 days, 1 means the person did engage in physical activity in the past 30 days), body mass index (continuous numeric variable),**, and **fruits (0 means the person does not consume fruit 1 or more times per day, 1 means the person consumes 1 or more fruits each day).**
+
+Now, I will explain a bit about why I chose these three variables to focus on. For the past 3 years, I have worked in a lab at UNC Chapel Hill studying intellectual and developmental disabilities (IDD) in young and older adults, including autism, dementia, etc. One of the projects studies the effects of a physical activity program (intervention) for adults with IDD. In our project narrative, we point to past research that suggests that physical activity (moderate to vigorous) can potentially delay the onset of conditions like diabetes and dementia, which are especially prevalent in IDD communities compared to the general population. One of the measures we include in our study is body mass index and body fat percentage. We place our participants in a machine called the BodPod to investigate body composition, and do this at several time points during the participants' time in the intervention (and/or while they are in the waitlist group for the intervention). We also ask the participants (and their caregivers) questions about their lifestyle in general: e.g., what is their baseline physical activity outside of the intervention? Do they choose to eat fruits and vegetables on their own? How often do they do this? What kind of adaptive behaviors help them complete activities of daily living? So, in summary, though this dataset is not IDD-specific, I chose variables I recognized and am familiar with in thinking about factors at play for diseases like diabetes (and dementias). Because of this research I have been a part of, it's possible that for this general population data, similar trends as those we've studied up to this point for IDD populations may appear. Physical activity, BMI, and fruit consumption may serve as predictors for the presence of diabetes. 
 
 **Describe the purpose of your EDA and ultimate goal of modeling.**
 
 ## Data
 
-Use a relative path to import data. You likely want to convert a lot of the variables to factors with meaningful level names. Check missingness, etc. The response variable is Diabetes_binary.
 ```{r}
 
+#relative path to import data 
 diabetes <- read.csv("data/diabetes_binary_health_indicators_BRFSS2015.csv")
 
+#convert to factor, add meaningful names
+diabetes$response <- factor(diabetes$Diabetes_binary, levels = c(0, 1, 2), labels = c("No Diabetes", "Has Prediabetes", "Has Diabetes")) #response variable is Diabetes_binary
+
+diabetes$HighBP <- factor(diabetes$HighBP, levels = c(0, 1), labels = c("No High BP", "High BP")) 
+
+diabetes$HighChol <- factor(diabetes$HighChol, levels = c(0, 1), labels = c("No High Chol", "High Chol"))
+
+diabetes$CholCheck <- factor(diabetes$CholCheck, levels = c(0, 1), labels = c("Does Not Check Cholesterol", "Does Check Cholesterol")) 
+
+diabetes$Smoker <- factor(diabetes$Smoker, levels = c(0, 1), labels = c("Not Smoker", "Smoker"))
+
+diabetes$Stroke <- factor(diabetes$Stroke, levels = c(0, 1), labels = c("No Stroke", "Has Had Stroke")) 
+
+diabetes$HeartDiseaseorAttack <- factor(diabetes$HeartDiseaseorAttack, levels = c(0, 1), labels = c("No Heart Disease", "Has Had Heart Disease"))
+
+diabetes$PhysActivity <- factor(diabetes$PhysActivity, levels = c(0, 1), labels = c("Does Not Exercise", "Exercises")) 
+
+diabetes$Fruits <- factor(diabetes$Fruits, levels = c(0, 1), labels = c("Does Not Eat Fruit", "Eats Fruit")) 
+
+diabetes$Veggies <- factor(diabetes$Veggies, levels = c(0, 1), labels = c("Does Not Eat Veggies", "Eats Veggies")) 
+
+diabetes$HvyAlcoholConsump <- factor(diabetes$HvyAlcoholConsump, levels = c(0, 1), labels = c("Not A Heavy Drinker", "Heavy Drinker")) 
+
+diabetes$AnyHealthcare <- factor(diabetes$AnyHealthcare, levels = c(0, 1), labels = c("No Healthcare", "Has Healthcare")) 
+
+diabetes$NoDocbcCost <- factor(diabetes$NoDocbcCost, levels = c(0, 1), labels = c("No Cost Barrier In Seeing Doctor", "Cost Barrier In Seeing Doctor")) 
+
+diabetes$GenHlth <- factor(diabetes$GenHlth, levels = c(1:5), labels = c("Excellent Health", "Very Good Health", "Good Health", "Fair Health", "Poor Health")) 
+
+diabetes$DiffWalk <- factor(diabetes$DiffWalk, levels = c(0, 1), labels = c("No Difficulty Walking", "Has Difficulty Walking")) 
+
+diabetes$Sex <- factor(diabetes$Sex, levels = c(0, 1), labels = c("Female", "Male"))
+
+diabetes$Age <- factor(diabetes$Age, levels = c(1:13), labels = c("18 - 24", "25 - 29", "30 - 34", "35 - 39", "40 - 44", "45 - 49", "50 - 54", "55 - 59", "60 - 64", "65 - 69", "70 - 74", "75 - 79", "80+")) 
+
+diabetes$Education <- factor(diabetes$Education, levels = c(1:6), labels = c("No School/K Only", "Elementary School", "Middle School", "High School", "College", "Graduate Education")) 
+
+diabetes$Income <- factor(diabetes$Income, levels = c(1:8), labels = c("Less than $10,000", "$10,000 - less than $15,000", "$15,000 - less than $20,000", "$20,000 - less than $25,000", "$25,000 - less than $35,000", "$35,000 - less than $50,000", "$50,000 - less than $75,000", "More than $75,000"))
+  
+print(head(diabetes, n = 5))
+
+#check missingness- no drop_na() needed
+colSums(is.na(diabetes))
+
+#instructions said "check on missingness, etc." so here is something "etc." to do (based on EDA lecture/class materials)
+psych::describe(diabetes)
+
+summary(diabetes)
+  
 ```
 
 ## Summarizations
 
-Produce meaningful summary statistic and plots about the data you are working with (especially as it relates to your response.) Do EDA on full data even though we haven't split into training/test data first. Be sure to have a narrative about what you are exploringa dn what the summaries and graphs you created say about the relationships in your data. 
+Produce meaningful summary statistic and plots about the data you are working with (especially as it relates to your response.) Do EDA on full data even though we haven't split into training/test data first. Be sure to have a narrative about what you are exploring and what the summaries and graphs you created say about the relationships in your data. 
+```{r}
+
+#do at least one univariate exploration on your 4 variables
+
+#contingency tables for categorical variables
+diabetes |>
+  group_by(response) |>
+  summarize(count = n())
+
+diabetes |>
+  group_by(PhysActivity) |>
+  summarize(count = n())
+
+diabetes |>
+  group_by(Fruits) |>
+  summarize(count = n())
+
+#numerical summary for the continuous variable
+psych::describe(diabetes$BMI)
+
+#visualizing the data 
+plot(diabetes$response)
+
+plot(diabetes$PhysActivity)
+
+plot(diabetes$Fruits)
+
+hist(diabetes$BMI)
+
+#look at bivariate relationships between each of your explanatory variables and the response 
+
+```
 
 At the bottom of the EDA file, give a link to the modeling page: [Click here for the Modeling Page](Modeling.html)
