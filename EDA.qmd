@@ -1,0 +1,7 @@
+---
+title: "EDA"
+author: "Hayden Morgan"
+format: html
+---
+
+At the bottom of the EDA file, give a link to the modeling page: [Click here](Modeling.html)
