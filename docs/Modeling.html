@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -97,8 +131,82 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidyverse"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidymodels"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"caret"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"yardstick"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="basic-introduction" class="level2">
+<h2 class="anchored" data-anchor-id="basic-introduction">Basic Introduction</h2>
+<p>Again, for this project we are using a data set about diabetes health. The data comes from the CDC, and the set we are using is clean data. We are told that we have a binary response variable called Diabetes_binary, which tells us if the person does not have diabetes or has prediabetes/diabetes. There are 21 variables total, but for the purpose of this project we are only choosing 3 variables in addition to the response variable to focus on. I chose to focus on <strong>physical activity (0 means no physical activity in the past 30 days, 1 means the person did engage in physical activity in the past 30 days), body mass index (continuous numeric variable),</strong>, and <strong>fruits (0 means the person does not consume fruit 1 or more times per day, 1 means the person consumes 1 or more fruits each day).</strong></p>
+<p>In the EDA .qmd file, I explained why I chose these three vairables specifically already. So here, I will talk a little bit about the difference between this Modeling file and the EDA file completed previously. Exploratory data analysis has already been performed so that we have a better understanding and vision of the data set overall. Now, attention is turned to modeling so that we can look at historical data and try to predict what similar data might look like in the future. There are many different types of models that can be selected for a data set, and this project will cover and explain 4 of them. The goal of this document is to choose the model that best fits the data set at hand (e.g.&nbsp;select the model that does the best job at predicting data in this context).</p>
+<p>Here, I am presenting the clean/factored data set again for use in the Modeling.qmd file:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/diabetes_binary_health_indicators_BRFSS2015.csv"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>response <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Diabetes_binary, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Diabetes"</span>, <span class="st">"Has Prediabetes or Diabetes"</span>)) <span class="co">#response variable is Diabetes_binary</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>HighBP <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>HighBP, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No High BP"</span>, <span class="st">"High BP"</span>)) </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>HighChol <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>HighChol, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No High Chol"</span>, <span class="st">"High Chol"</span>))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>CholCheck <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>CholCheck, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Does Not Check Cholesterol"</span>, <span class="st">"Does Check Cholesterol"</span>)) </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Smoker <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Smoker, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Not Smoker"</span>, <span class="st">"Smoker"</span>))</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Stroke <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Stroke, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Stroke"</span>, <span class="st">"Has Had Stroke"</span>)) </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>HeartDiseaseorAttack <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>HeartDiseaseorAttack, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Heart Disease"</span>, <span class="st">"Has Had Heart Disease"</span>))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>PhysActivity <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>PhysActivity, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Does Not Exercise"</span>, <span class="st">"Exercises"</span>)) </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Fruits <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Fruits, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Does Not Eat Fruit"</span>, <span class="st">"Eats Fruit"</span>)) </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Veggies <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Veggies, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Does Not Eat Veggies"</span>, <span class="st">"Eats Veggies"</span>)) </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>HvyAlcoholConsump <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>HvyAlcoholConsump, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Not A Heavy Drinker"</span>, <span class="st">"Heavy Drinker"</span>)) </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>AnyHealthcare <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>AnyHealthcare, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Healthcare"</span>, <span class="st">"Has Healthcare"</span>)) </span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>NoDocbcCost <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>NoDocbcCost, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Cost Barrier In Seeing Doctor"</span>, <span class="st">"Cost Barrier In Seeing Doctor"</span>)) </span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>GenHlth <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>GenHlth, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Excellent Health"</span>, <span class="st">"Very Good Health"</span>, <span class="st">"Good Health"</span>, <span class="st">"Fair Health"</span>, <span class="st">"Poor Health"</span>)) </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>DiffWalk <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>DiffWalk, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Difficulty Walking"</span>, <span class="st">"Has Difficulty Walking"</span>)) </span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Sex <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Sex, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Female"</span>, <span class="st">"Male"</span>))</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Age <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Age, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">13</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"18 - 24"</span>, <span class="st">"25 - 29"</span>, <span class="st">"30 - 34"</span>, <span class="st">"35 - 39"</span>, <span class="st">"40 - 44"</span>, <span class="st">"45 - 49"</span>, <span class="st">"50 - 54"</span>, <span class="st">"55 - 59"</span>, <span class="st">"60 - 64"</span>, <span class="st">"65 - 69"</span>, <span class="st">"70 - 74"</span>, <span class="st">"75 - 79"</span>, <span class="st">"80+"</span>)) </span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Education <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Education, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No School/K Only"</span>, <span class="st">"Elementary School"</span>, <span class="st">"Middle School"</span>, <span class="st">"High School"</span>, <span class="st">"College"</span>, <span class="st">"Graduate Education"</span>)) </span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Income <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Income, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Less than $10,000"</span>, <span class="st">"$10,000 - less than $15,000"</span>, <span class="st">"$15,000 - less than $20,000"</span>, <span class="st">"$20,000 - less than $25,000"</span>, <span class="st">"$25,000 - less than $35,000"</span>, <span class="st">"$35,000 - less than $50,000"</span>, <span class="st">"$50,000 - less than $75,000"</span>, <span class="st">"More than $75,000"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To train a model but not make it wholly dependent on data it has already seen, we will split the data we do have into training and test data. The model will be trained on the training data, and then its performance will be evaluated on the test data. We use set.seed() first to produce reproducible random numbers for the purposes of model training/testing.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>) <span class="co">#chose 100 because it is a similar value to our HW5 assignment </span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(diabetes, <span class="at">prop =</span> <span class="fl">0.7</span>) <span class="co">#project instructions specify 70/30 split </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">training</span>(split)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">testing</span>(split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The goal is to create models for predicting Diabetes_binary (ok to use caret package). Use logLoss as metric to evaluate. For all model types use logLoss with 5 fold CV to select best model. Set up your own grid of tuning parameters in any model where possible.</p>
+</section>
+<section id="logistic-regression-models" class="level2">
+<h2 class="anchored" data-anchor-id="logistic-regression-models">Logistic Regression Models</h2>
+</section>
+<section id="classification-tree" class="level2">
+<h2 class="anchored" data-anchor-id="classification-tree">Classification Tree</h2>
+</section>
+<section id="random-forest" class="level2">
+<h2 class="anchored" data-anchor-id="random-forest">Random Forest</h2>
+</section>
+<section id="final-model-selection" class="level2">
+<h2 class="anchored" data-anchor-id="final-model-selection">Final Model Selection</h2>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

@@ -6,7 +6,8 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r}
+Before beginning: adding libraries so our code runs smoothl (messages and warnings silenced).
+```{r, message=FALSE, warning=FALSE}
 library("dplyr")
 library("ggplot2")
 ```
@@ -14,7 +15,8 @@ library("ggplot2")
 ## Introduction Section
 
 **Briefly describe the data and the variables you have to work with.**
-For this project, we are using a specific portion of the Diabetes Health Indicators data set. The data we are working with is clean data that contains survey responses from the CDC. We are told that the response variable is Diabetes_binary, where 0 means the person does not have diabetes, 1 means the person has pre-diabetes, and 2 means the person has diabetes (of note, there were no responses of 2 included in the data set). The data includes 21 variables total. The project instructions tells us to pick 3 variables (aside from the response) to explore further. I chose to focus on **physical activity (0 means no physical activity in the past 30 days, 1 means the person did engage in physical activity in the past 30 days), body mass index (continuous numeric variable),**, and **fruits (0 means the person does not consume fruit 1 or more times per day, 1 means the person consumes 1 or more fruits each day).**
+
+For this project, we are using a specific portion of the Diabetes Health Indicators data set. The data we are working with is clean data that contains survey responses from the CDC. We are told that the response variable is Diabetes_binary, where 0 means the person does not have diabetes, and 1 means the person has pre-diabetes or diabetes (specifically, we are working with the variable Diabetes_binary which only includes these two classes, rather than having 3 groups for no diabetes, pre-diabetes, and diabetes). The data includes 21 variables total. The project instructions tells us to pick 3 variables (aside from the response) to explore further. I chose to focus on **physical activity (0 means no physical activity in the past 30 days, 1 means the person did engage in physical activity in the past 30 days), body mass index (continuous numeric variable),**, and **fruits (0 means the person does not consume fruit 1 or more times per day, 1 means the person consumes 1 or more fruits each day).**
 
 Now, I will explain a bit about why I chose these three variables to focus on. For the past 3 years, I have worked in a lab at UNC Chapel Hill studying intellectual and developmental disabilities (IDD) in younger and older adults, including autism, dementia, etc. One of the research projects studies the effects of a physical activity program (intervention) for adults with IDD. In our project narrative, we point to past research that suggests that physical activity (moderate to vigorous) can potentially delay the onset of conditions like diabetes and dementia, which are especially prevalent in IDD communities compared to the general population. Some of the measures we include in our study are body mass index and body fat percentage. We place our participants in a machine called the BodPod to investigate body composition, and do this at several time points during the participants' time in the intervention (and/or while they are in the waitlist group for the intervention). We also ask the participants (and their caregivers) questions about their lifestyle in general: e.g., what is the participant's baseline physical activity outside of the intervention? Do they choose to eat fruits and vegetables on their own? How often do they do this? What kind of adaptive behaviors help them complete activities of daily living? So, in summary, though this dataset is not IDD-specific, I chose variables I recognized and am familiar with in thinking about factors at play for diseases like diabetes (and dementias). Because of this research I have been a part of, it's possible that for this general population data, similar trends as those we've studied up to this point for IDD populations may appear. Physical activity, BMI, and fruit consumption may serve as predictors for the presence of diabetes. 
 
@@ -35,7 +37,7 @@ diabetes <- read.csv("data/diabetes_binary_health_indicators_BRFSS2015.csv")
 Now, per project instructions, I am converting "a lot of the variables [in the data set] to factors with meaningful level names." I am making sure to use factor() only on the categorical variables that had labeled levels, and not the continuous numerical variables for which level-naming would not make sense.
 ```{r}
 
-diabetes$response <- factor(diabetes$Diabetes_binary, levels = c(0, 1, 2), labels = c("No Diabetes", "Has Prediabetes", "Has Diabetes")) #response variable is Diabetes_binary
+diabetes$response <- factor(diabetes$Diabetes_binary, levels = c(0, 1), labels = c("No Diabetes", "Has Prediabetes or Diabetes")) #response variable is Diabetes_binary
 
 diabetes$HighBP <- factor(diabetes$HighBP, levels = c(0, 1), labels = c("No High BP", "High BP")) 
 
@@ -98,7 +100,7 @@ summary(diabetes)
 
 Per the project instructions, this is the goal of the Summarizations section: Produce meaningful summary statistic and plots about the data you are working with (especially as it relates to your response.) Do EDA on full data even though we haven't split into training/test data first. Be sure to have a narrative about what you are exploring and what the summaries and graphs you created say about the relationships in your data. 
 
-The instructions also tell us to do at least one univariate exploration on the 4 variables. Below, I produce contingency tables for the categorical variables (including the response) and use 'describe' again but only on the single continuous numerical variable I chose. The contingency tables tell us a raw count of how many responses belong in each level of each categorical variable. Importantly, this is one way to confirm that there are, in fact, no responses of "2" (having diabetes) in the response variable. Using 'describe' again for the continuous numerical variable allows us to narrow in on the variable of interest and gives us summary statistics just for that variable. 
+The instructions also tell us to do at least one univariate exploration on the 4 variables. Below, I produce contingency tables for the categorical variables (including the response) and use 'describe' again but only on the single continuous numerical variable I chose. The contingency tables tell us a raw count of how many responses belong in each level of each categorical variable. Using 'describe' again for the continuous numerical variable allows us to narrow in on the variable of interest and gives us summary statistics just for that variable. 
 
 Comments/interpretations of the results are commented within the code below.
 ```{r}
@@ -106,7 +108,7 @@ Comments/interpretations of the results are commented within the code below.
 #contingency tables for categorical variables
 diabetes |>
   group_by(response) |>
-  summarize(count = n()) #more without pre-diabetes than with; none with diabetes
+  summarize(count = n()) #more without pre-diabetes/diabetes than with; none with diabetes
 
 diabetes |>
   group_by(PhysActivity) |>
@@ -148,7 +150,7 @@ Comments/interpretations of the results are commented within the code below.
 ggplot(diabetes, aes(x = PhysActivity, fill = response)) +
   geom_bar(position = "fill") +
   labs(x = "Physical Activity Status", y = "Proportion", fill = "Diabetes Status", 
-       main = "Physical Activity as a Predictor of Diabetes Status") #the "does not exercise" group had more participants with pre-diabetes than the "exercises" group. 
+       main = "Physical Activity as a Predictor of Diabetes Status") #the "does not exercise" group had more participants with pre-diabetes/diabetes than the "exercises" group. 
 
 table(diabetes$PhysActivity, diabetes$response) #numerical representation of the graph above, though not in proportions so must account for that when looking at the numbers.
 
@@ -158,14 +160,14 @@ chisq.test(diabetes$PhysActivity, diabetes$response) #a small p-value here means
 ggplot(diabetes, aes(x = Fruits, fill = response)) +
   geom_bar(position = "fill") +
   labs(x = "Fruit Consumption Status", y = "Proportion", fill = "Diabetes Status",
-       main = "Fruit Consumption as a Predictor of Diabetes Status") #the "does not eat fruit" group had more participants with pre-diabetes than the "eats fruit" group. 
+       main = "Fruit Consumption as a Predictor of Diabetes Status") #the "does not eat fruit" group had more participants with pre-diabetes/diabetes than the "eats fruit" group. 
 
 table(diabetes$Fruits, diabetes$response) #numerical representation of the graph above, though not in proportions so must account for that when looking at the numbers.
 
 chisq.test(diabetes$Fruits, diabetes$response) #a small p-value here means that the difference in diabetes status across fruit consumption groups is likely not due to chance. In other words, there may be a statistically significant relationship between fruit consumption and diabetes status.  
 
 #BMI and diabetes status 
-boxplot(BMI ~ response, data = diabetes, ylab = "Diabetes Status", main = "BMI Value by Diabetes Status") #the "has pre-diabetes" group had a higher average BMI than the "no diabetes" group. 
+boxplot(BMI ~ response, data = diabetes, ylab = "Diabetes Status", main = "BMI Value by Diabetes Status") #the "has pre-diabetes or diabetes" group had a higher average BMI than the "no diabetes" group. 
 
 anova <- aov(BMI ~ response, data = diabetes)
 summary(anova) #a small p-value here means that the difference BMI across diabetes status groups is likely not due to chance. In other words, there may be a statistically significant relationship between BMI and diabetes status.  

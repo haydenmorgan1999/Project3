@@ -2,9 +2,12 @@
 title: "Modeling"
 author: "Hayden Morgan"
 format: html
+editor_options: 
+  chunk_output_type: console
 ---
 
-```{r}
+Before beginning: adding libraries so our code runs smoothl (messages and warnings silenced).
+```{r, message=FALSE, warning=FALSE}
 library("tidyverse")
 library("tidymodels")
 library("caret")
@@ -12,13 +15,61 @@ library("yardstick")
 ```
 
 ## Basic Introduction
+Again, for this project we are using a data set about diabetes health. The data comes from the CDC, and the set we are using is clean data. We are told that we have a binary response variable called Diabetes_binary, which tells us if the person does not have diabetes or has prediabetes/diabetes. There are 21 variables total, but for the purpose of this project we are only choosing 3 variables in addition to the response variable to focus on. I chose to focus on **physical activity (0 means no physical activity in the past 30 days, 1 means the person did engage in physical activity in the past 30 days), body mass index (continuous numeric variable),**, and **fruits (0 means the person does not consume fruit 1 or more times per day, 1 means the person consumes 1 or more fruits each day).**
 
-Split data into training (70%) and test (30%). Use set.seed() to make things reproducible.
+In the EDA .qmd file, I explained why I chose these three vairables specifically already. So here, I will talk a little bit about the difference between this Modeling file and the EDA file completed previously. Exploratory data analysis has already been performed so that we have a better understanding and vision of the data set overall. Now, attention is turned to modeling so that we can look at historical data and try to predict what similar data might look like in the future. There are many different types of models that can be selected for a data set, and this project will cover and explain 4 of them. The goal of this document is to choose the model that best fits the data set at hand (e.g. select the model that does the best job at predicting data in this context).
+
+Here, I am presenting the clean/factored data set again for use in the Modeling.qmd file:
 ```{r}
 
-set.seed(100)
+diabetes <- read.csv("data/diabetes_binary_health_indicators_BRFSS2015.csv")
 
-split <- initial_split(diabetes, prop = 0.7)
+diabetes$response <- factor(diabetes$Diabetes_binary, levels = c(0, 1), labels = c("No Diabetes", "Has Prediabetes or Diabetes")) #response variable is Diabetes_binary
+
+diabetes$HighBP <- factor(diabetes$HighBP, levels = c(0, 1), labels = c("No High BP", "High BP")) 
+
+diabetes$HighChol <- factor(diabetes$HighChol, levels = c(0, 1), labels = c("No High Chol", "High Chol"))
+
+diabetes$CholCheck <- factor(diabetes$CholCheck, levels = c(0, 1), labels = c("Does Not Check Cholesterol", "Does Check Cholesterol")) 
+
+diabetes$Smoker <- factor(diabetes$Smoker, levels = c(0, 1), labels = c("Not Smoker", "Smoker"))
+
+diabetes$Stroke <- factor(diabetes$Stroke, levels = c(0, 1), labels = c("No Stroke", "Has Had Stroke")) 
+
+diabetes$HeartDiseaseorAttack <- factor(diabetes$HeartDiseaseorAttack, levels = c(0, 1), labels = c("No Heart Disease", "Has Had Heart Disease"))
+
+diabetes$PhysActivity <- factor(diabetes$PhysActivity, levels = c(0, 1), labels = c("Does Not Exercise", "Exercises")) 
+
+diabetes$Fruits <- factor(diabetes$Fruits, levels = c(0, 1), labels = c("Does Not Eat Fruit", "Eats Fruit")) 
+
+diabetes$Veggies <- factor(diabetes$Veggies, levels = c(0, 1), labels = c("Does Not Eat Veggies", "Eats Veggies")) 
+
+diabetes$HvyAlcoholConsump <- factor(diabetes$HvyAlcoholConsump, levels = c(0, 1), labels = c("Not A Heavy Drinker", "Heavy Drinker")) 
+
+diabetes$AnyHealthcare <- factor(diabetes$AnyHealthcare, levels = c(0, 1), labels = c("No Healthcare", "Has Healthcare")) 
+
+diabetes$NoDocbcCost <- factor(diabetes$NoDocbcCost, levels = c(0, 1), labels = c("No Cost Barrier In Seeing Doctor", "Cost Barrier In Seeing Doctor")) 
+
+diabetes$GenHlth <- factor(diabetes$GenHlth, levels = c(1:5), labels = c("Excellent Health", "Very Good Health", "Good Health", "Fair Health", "Poor Health")) 
+
+diabetes$DiffWalk <- factor(diabetes$DiffWalk, levels = c(0, 1), labels = c("No Difficulty Walking", "Has Difficulty Walking")) 
+
+diabetes$Sex <- factor(diabetes$Sex, levels = c(0, 1), labels = c("Female", "Male"))
+
+diabetes$Age <- factor(diabetes$Age, levels = c(1:13), labels = c("18 - 24", "25 - 29", "30 - 34", "35 - 39", "40 - 44", "45 - 49", "50 - 54", "55 - 59", "60 - 64", "65 - 69", "70 - 74", "75 - 79", "80+")) 
+
+diabetes$Education <- factor(diabetes$Education, levels = c(1:6), labels = c("No School/K Only", "Elementary School", "Middle School", "High School", "College", "Graduate Education")) 
+
+diabetes$Income <- factor(diabetes$Income, levels = c(1:8), labels = c("Less than $10,000", "$10,000 - less than $15,000", "$15,000 - less than $20,000", "$20,000 - less than $25,000", "$25,000 - less than $35,000", "$35,000 - less than $50,000", "$50,000 - less than $75,000", "More than $75,000"))
+
+```
+
+To train a model but not make it wholly dependent on data it has already seen, we will split the data we do have into training and test data. The model will be trained on the training data, and then its performance will be evaluated on the test data. We use set.seed() first to produce reproducible random numbers for the purposes of model training/testing. 
+```{r}
+
+set.seed(100) #chose 100 because it is a similar value to our HW5 assignment 
+
+split <- initial_split(diabetes, prop = 0.7) #project instructions specify 70/30 split 
 train <- training(split)
 test <- testing(split)
 

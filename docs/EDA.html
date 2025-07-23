@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -97,9 +131,400 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<p>At the bottom of the EDA file, give a link to the modeling page: <a href="Modeling.html">Click here</a></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"dplyr"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"ggplot2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="introduction-section" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-section">Introduction Section</h2>
+<p><strong>Briefly describe the data and the variables you have to work with.</strong> For this project, we are using a specific portion of the Diabetes Health Indicators data set. The data we are working with is clean data that contains survey responses from the CDC. We are told that the response variable is Diabetes_binary, where 0 means the person does not have diabetes, and 1 means the person has pre-diabetes or diabetes (specifically, we are working with the variable Diabetes_binary which only includes these two classes, rather than having 3 groups for no diabetes, pre-diabetes, and diabetes). The data includes 21 variables total. The project instructions tells us to pick 3 variables (aside from the response) to explore further. I chose to focus on <strong>physical activity (0 means no physical activity in the past 30 days, 1 means the person did engage in physical activity in the past 30 days), body mass index (continuous numeric variable),</strong>, and <strong>fruits (0 means the person does not consume fruit 1 or more times per day, 1 means the person consumes 1 or more fruits each day).</strong></p>
+<p>Now, I will explain a bit about why I chose these three variables to focus on. For the past 3 years, I have worked in a lab at UNC Chapel Hill studying intellectual and developmental disabilities (IDD) in younger and older adults, including autism, dementia, etc. One of the research projects studies the effects of a physical activity program (intervention) for adults with IDD. In our project narrative, we point to past research that suggests that physical activity (moderate to vigorous) can potentially delay the onset of conditions like diabetes and dementia, which are especially prevalent in IDD communities compared to the general population. Some of the measures we include in our study are body mass index and body fat percentage. We place our participants in a machine called the BodPod to investigate body composition, and do this at several time points during the participants’ time in the intervention (and/or while they are in the waitlist group for the intervention). We also ask the participants (and their caregivers) questions about their lifestyle in general: e.g., what is the participant’s baseline physical activity outside of the intervention? Do they choose to eat fruits and vegetables on their own? How often do they do this? What kind of adaptive behaviors help them complete activities of daily living? So, in summary, though this dataset is not IDD-specific, I chose variables I recognized and am familiar with in thinking about factors at play for diseases like diabetes (and dementias). Because of this research I have been a part of, it’s possible that for this general population data, similar trends as those we’ve studied up to this point for IDD populations may appear. Physical activity, BMI, and fruit consumption may serve as predictors for the presence of diabetes.</p>
+<p><strong>Describe the purpose of your EDA and ultimate goal of modeling.</strong> The purposes of exploratory data analysis (EDA) is to better understand and get to know the data set at hand before applying deeper statistical methods (e.g.&nbsp;for the purposes of inference and prediction). EDA can include data cleaning - the current data set is described as clean already on its website, but just in case I check for missing values (for example) below. If there were missing values, I would drop them from analysis as part of EDA. EDA can also include descriptions and visualizations of the data. This project prompts us to do both univariate and bivariate data exploration to investigate characteristics of certain variables but also give insight on how variables might relate to each other. Below, the data is visualized with plots as well, which is another part of EDA. Ultimately, EDA is a tool used to understand the structure of data, whether there are certain patterns present, whether or not certain variables have relationships with each other, and if there are any strange factors in the data that could skew analysis/modeling later on.</p>
+<p>Modeling (which is detailed in a separate .qmd file in this project) is a mathematical representation of patterns/phenomena present in a data set (per Dr.&nbsp;Post!). In this class and for this project, we work a lot with predictive modeling - that is, trying to create an algorithm that can learn from a data set and then predict what that data in that specific context might look like for future observations. The ultimate goal of modeling is to be able to predict future outcomes. This is very important in many businesses, for example when trying to anticipate market trends to maximize profits. A large part of predictive modeling is getting to know your data through EDA so that you can decide the most appropriate type of model to pick for your data set in the first place. In other words, trying to pick the model that will be most accurate in its predictions in terms of the trends and patterns in the data set.</p>
+</section>
+<section id="data" class="level2">
+<h2 class="anchored" data-anchor-id="data">Data</h2>
+<p>Here, I am using a relative path to import the indicated diabetes health data set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/diabetes_binary_health_indicators_BRFSS2015.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, per project instructions, I am converting “a lot of the variables [in the data set] to factors with meaningful level names.” I am making sure to use factor() only on the categorical variables that had labeled levels, and not the continuous numerical variables for which level-naming would not make sense.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>response <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Diabetes_binary, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Diabetes"</span>, <span class="st">"Has Prediabetes or Diabetes"</span>)) <span class="co">#response variable is Diabetes_binary</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>HighBP <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>HighBP, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No High BP"</span>, <span class="st">"High BP"</span>)) </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>HighChol <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>HighChol, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No High Chol"</span>, <span class="st">"High Chol"</span>))</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>CholCheck <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>CholCheck, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Does Not Check Cholesterol"</span>, <span class="st">"Does Check Cholesterol"</span>)) </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Smoker <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Smoker, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Not Smoker"</span>, <span class="st">"Smoker"</span>))</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Stroke <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Stroke, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Stroke"</span>, <span class="st">"Has Had Stroke"</span>)) </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>HeartDiseaseorAttack <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>HeartDiseaseorAttack, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Heart Disease"</span>, <span class="st">"Has Had Heart Disease"</span>))</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>PhysActivity <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>PhysActivity, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Does Not Exercise"</span>, <span class="st">"Exercises"</span>)) </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Fruits <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Fruits, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Does Not Eat Fruit"</span>, <span class="st">"Eats Fruit"</span>)) </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Veggies <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Veggies, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Does Not Eat Veggies"</span>, <span class="st">"Eats Veggies"</span>)) </span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>HvyAlcoholConsump <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>HvyAlcoholConsump, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Not A Heavy Drinker"</span>, <span class="st">"Heavy Drinker"</span>)) </span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>AnyHealthcare <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>AnyHealthcare, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Healthcare"</span>, <span class="st">"Has Healthcare"</span>)) </span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>NoDocbcCost <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>NoDocbcCost, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Cost Barrier In Seeing Doctor"</span>, <span class="st">"Cost Barrier In Seeing Doctor"</span>)) </span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>GenHlth <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>GenHlth, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Excellent Health"</span>, <span class="st">"Very Good Health"</span>, <span class="st">"Good Health"</span>, <span class="st">"Fair Health"</span>, <span class="st">"Poor Health"</span>)) </span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>DiffWalk <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>DiffWalk, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Difficulty Walking"</span>, <span class="st">"Has Difficulty Walking"</span>)) </span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Sex <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Sex, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Female"</span>, <span class="st">"Male"</span>))</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Age <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Age, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">13</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"18 - 24"</span>, <span class="st">"25 - 29"</span>, <span class="st">"30 - 34"</span>, <span class="st">"35 - 39"</span>, <span class="st">"40 - 44"</span>, <span class="st">"45 - 49"</span>, <span class="st">"50 - 54"</span>, <span class="st">"55 - 59"</span>, <span class="st">"60 - 64"</span>, <span class="st">"65 - 69"</span>, <span class="st">"70 - 74"</span>, <span class="st">"75 - 79"</span>, <span class="st">"80+"</span>)) </span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Education <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Education, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No School/K Only"</span>, <span class="st">"Elementary School"</span>, <span class="st">"Middle School"</span>, <span class="st">"High School"</span>, <span class="st">"College"</span>, <span class="st">"Graduate Education"</span>)) </span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>diabetes<span class="sc">$</span>Income <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes<span class="sc">$</span>Income, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Less than $10,000"</span>, <span class="st">"$10,000 - less than $15,000"</span>, <span class="st">"$15,000 - less than $20,000"</span>, <span class="st">"$20,000 - less than $25,000"</span>, <span class="st">"$25,000 - less than $35,000"</span>, <span class="st">"$35,000 - less than $50,000"</span>, <span class="st">"$50,000 - less than $75,000"</span>, <span class="st">"More than $75,000"</span>))</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">head</span>(diabetes, <span class="at">n =</span> <span class="dv">5</span>)) <span class="co">#this shows some of the labeling done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Diabetes_binary     HighBP     HighChol                  CholCheck BMI
+1               0    High BP    High Chol     Does Check Cholesterol  40
+2               0 No High BP No High Chol Does Not Check Cholesterol  25
+3               0    High BP    High Chol     Does Check Cholesterol  28
+4               0    High BP No High Chol     Does Check Cholesterol  27
+5               0    High BP    High Chol     Does Check Cholesterol  24
+      Smoker    Stroke HeartDiseaseorAttack      PhysActivity
+1     Smoker No Stroke     No Heart Disease Does Not Exercise
+2     Smoker No Stroke     No Heart Disease         Exercises
+3 Not Smoker No Stroke     No Heart Disease Does Not Exercise
+4 Not Smoker No Stroke     No Heart Disease         Exercises
+5 Not Smoker No Stroke     No Heart Disease         Exercises
+              Fruits              Veggies   HvyAlcoholConsump  AnyHealthcare
+1 Does Not Eat Fruit         Eats Veggies Not A Heavy Drinker Has Healthcare
+2 Does Not Eat Fruit Does Not Eat Veggies Not A Heavy Drinker  No Healthcare
+3         Eats Fruit Does Not Eat Veggies Not A Heavy Drinker Has Healthcare
+4         Eats Fruit         Eats Veggies Not A Heavy Drinker Has Healthcare
+5         Eats Fruit         Eats Veggies Not A Heavy Drinker Has Healthcare
+                       NoDocbcCost          GenHlth MentHlth PhysHlth
+1 No Cost Barrier In Seeing Doctor      Poor Health       18       15
+2    Cost Barrier In Seeing Doctor      Good Health        0        0
+3    Cost Barrier In Seeing Doctor      Poor Health       30       30
+4 No Cost Barrier In Seeing Doctor Very Good Health        0        0
+5 No Cost Barrier In Seeing Doctor Very Good Health        3        0
+                DiffWalk    Sex     Age          Education
+1 Has Difficulty Walking Female 60 - 64        High School
+2  No Difficulty Walking Female 50 - 54 Graduate Education
+3 Has Difficulty Walking Female 60 - 64        High School
+4  No Difficulty Walking Female 70 - 74      Middle School
+5  No Difficulty Walking Female 70 - 74            College
+                       Income    response
+1 $15,000 - less than $20,000 No Diabetes
+2           Less than $10,000 No Diabetes
+3           More than $75,000 No Diabetes
+4 $35,000 - less than $50,000 No Diabetes
+5 $20,000 - less than $25,000 No Diabetes</code></pre>
+</div>
+</div>
+<p>Next, the instructions say to “check on missingness, etc.”. We already know from the website that the data set is clean so it makes sense that there is no missing data here. There is no need to remove any missing rows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#check missingness- no drop_na() needed</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(diabetes))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Diabetes_binary               HighBP             HighChol 
+                   0                    0                    0 
+           CholCheck                  BMI               Smoker 
+                   0                    0                    0 
+              Stroke HeartDiseaseorAttack         PhysActivity 
+                   0                    0                    0 
+              Fruits              Veggies    HvyAlcoholConsump 
+                   0                    0                    0 
+       AnyHealthcare          NoDocbcCost              GenHlth 
+                   0                    0                    0 
+            MentHlth             PhysHlth             DiffWalk 
+                   0                    0                    0 
+                 Sex                  Age            Education 
+                   0                    0                    0 
+              Income             response 
+                   0                    0 </code></pre>
+</div>
+</div>
+<p>Now to address the “etc.” part of the instructions above. These are some other EDA procedures we have discussed in class. ‘describe’ shows various descriptive statistics for each variable in the data set, and ‘summary’ is similar but a little less overwhelming - basically, the two functions have different focuses in describing and summarizing data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>psych<span class="sc">::</span><span class="fu">describe</span>(diabetes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      vars      n  mean   sd median trimmed  mad min max range
+Diabetes_binary          1 253680  0.14 0.35      0    0.05 0.00   0   1     1
+HighBP*                  2 253680  1.43 0.49      1    1.41 0.00   1   2     1
+HighChol*                3 253680  1.42 0.49      1    1.41 0.00   1   2     1
+CholCheck*               4 253680  1.96 0.19      2    2.00 0.00   1   2     1
+BMI                      5 253680 28.38 6.61     27   27.68 4.45  12  98    86
+Smoker*                  6 253680  1.44 0.50      1    1.43 0.00   1   2     1
+Stroke*                  7 253680  1.04 0.20      1    1.00 0.00   1   2     1
+HeartDiseaseorAttack*    8 253680  1.09 0.29      1    1.00 0.00   1   2     1
+PhysActivity*            9 253680  1.76 0.43      2    1.82 0.00   1   2     1
+Fruits*                 10 253680  1.63 0.48      2    1.67 0.00   1   2     1
+Veggies*                11 253680  1.81 0.39      2    1.89 0.00   1   2     1
+HvyAlcoholConsump*      12 253680  1.06 0.23      1    1.00 0.00   1   2     1
+AnyHealthcare*          13 253680  1.95 0.22      2    2.00 0.00   1   2     1
+NoDocbcCost*            14 253680  1.08 0.28      1    1.00 0.00   1   2     1
+GenHlth*                15 253680  2.51 1.07      2    2.45 1.48   1   5     4
+MentHlth                16 253680  3.18 7.41      0    1.04 0.00   0  30    30
+PhysHlth                17 253680  4.24 8.72      0    1.77 0.00   0  30    30
+DiffWalk*               18 253680  1.17 0.37      1    1.09 0.00   1   2     1
+Sex*                    19 253680  1.44 0.50      1    1.43 0.00   1   2     1
+Age*                    20 253680  8.03 3.05      8    8.17 2.97   1  13    12
+Education*              21 253680  5.05 0.99      5    5.15 1.48   1   6     5
+Income*                 22 253680  6.05 2.07      7    6.35 1.48   1   8     7
+response*               23 253680  1.14 0.35      1    1.05 0.00   1   2     1
+                       skew kurtosis   se
+Diabetes_binary        2.08     2.34 0.00
+HighBP*                0.29    -1.92 0.00
+HighChol*              0.31    -1.91 0.00
+CholCheck*            -4.88    21.83 0.00
+BMI                    2.12    11.00 0.01
+Smoker*                0.23    -1.95 0.00
+Stroke*                4.66    19.69 0.00
+HeartDiseaseorAttack*  2.78     5.72 0.00
+PhysActivity*         -1.20    -0.57 0.00
+Fruits*               -0.56    -1.69 0.00
+Veggies*              -1.59     0.54 0.00
+HvyAlcoholConsump*     3.85    12.85 0.00
+AnyHealthcare*        -4.18    15.48 0.00
+NoDocbcCost*           3.00     6.97 0.00
+GenHlth*               0.42    -0.38 0.00
+MentHlth               2.72     6.44 0.01
+PhysHlth               2.21     3.50 0.02
+DiffWalk*              1.77     1.15 0.00
+Sex*                   0.24    -1.94 0.00
+Age*                  -0.36    -0.58 0.01
+Education*            -0.78     0.04 0.00
+Income*               -0.89    -0.28 0.00
+response*              2.08     2.34 0.00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(diabetes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Diabetes_binary         HighBP               HighChol     
+ Min.   :0.0000   No High BP:144851   No High Chol:146089  
+ 1st Qu.:0.0000   High BP   :108829   High Chol   :107591  
+ Median :0.0000                                            
+ Mean   :0.1393                                            
+ 3rd Qu.:0.0000                                            
+ Max.   :1.0000                                            
+                                                           
+                      CholCheck           BMI               Smoker      
+ Does Not Check Cholesterol:  9470   Min.   :12.00   Not Smoker:141257  
+ Does Check Cholesterol    :244210   1st Qu.:24.00   Smoker    :112423  
+                                     Median :27.00                      
+                                     Mean   :28.38                      
+                                     3rd Qu.:31.00                      
+                                     Max.   :98.00                      
+                                                                        
+            Stroke                  HeartDiseaseorAttack
+ No Stroke     :243388   No Heart Disease     :229787   
+ Has Had Stroke: 10292   Has Had Heart Disease: 23893   
+                                                        
+                                                        
+                                                        
+                                                        
+                                                        
+            PhysActivity                   Fruits      
+ Does Not Exercise: 61760   Does Not Eat Fruit: 92782  
+ Exercises        :191920   Eats Fruit        :160898  
+                                                       
+                                                       
+                                                       
+                                                       
+                                                       
+                 Veggies                 HvyAlcoholConsump 
+ Does Not Eat Veggies: 47839   Not A Heavy Drinker:239424  
+ Eats Veggies        :205841   Heavy Drinker      : 14256  
+                                                           
+                                                           
+                                                           
+                                                           
+                                                           
+        AnyHealthcare                              NoDocbcCost    
+ No Healthcare : 12417   No Cost Barrier In Seeing Doctor:232326  
+ Has Healthcare:241263   Cost Barrier In Seeing Doctor   : 21354  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+             GenHlth         MentHlth         PhysHlth     
+ Excellent Health:45299   Min.   : 0.000   Min.   : 0.000  
+ Very Good Health:89084   1st Qu.: 0.000   1st Qu.: 0.000  
+ Good Health     :75646   Median : 0.000   Median : 0.000  
+ Fair Health     :31570   Mean   : 3.185   Mean   : 4.242  
+ Poor Health     :12081   3rd Qu.: 2.000   3rd Qu.: 3.000  
+                          Max.   :30.000   Max.   :30.000  
+                                                           
+                   DiffWalk          Sex              Age       
+ No Difficulty Walking :211005   Female:141974   60 - 64:33244  
+ Has Difficulty Walking: 42675   Male  :111706   65 - 69:32194  
+                                                 55 - 59:30832  
+                                                 50 - 54:26314  
+                                                 70 - 74:23533  
+                                                 45 - 49:19819  
+                                                 (Other):87744  
+              Education                              Income     
+ No School/K Only  :   174   More than $75,000          :90385  
+ Elementary School :  4043   $50,000 - less than $75,000:43219  
+ Middle School     :  9478   $35,000 - less than $50,000:36470  
+ High School       : 62750   $25,000 - less than $35,000:25883  
+ College           : 69910   $20,000 - less than $25,000:20135  
+ Graduate Education:107325   $15,000 - less than $20,000:15994  
+                             (Other)                    :21594  
+                        response     
+ No Diabetes                :218334  
+ Has Prediabetes or Diabetes: 35346  
+                                     
+                                     
+                                     
+                                     
+                                     </code></pre>
+</div>
+</div>
+</section>
+<section id="summarizations" class="level2">
+<h2 class="anchored" data-anchor-id="summarizations">Summarizations</h2>
+<p>Per the project instructions, this is the goal of the Summarizations section: Produce meaningful summary statistic and plots about the data you are working with (especially as it relates to your response.) Do EDA on full data even though we haven’t split into training/test data first. Be sure to have a narrative about what you are exploring and what the summaries and graphs you created say about the relationships in your data.</p>
+<p>The instructions also tell us to do at least one univariate exploration on the 4 variables. Below, I produce contingency tables for the categorical variables (including the response) and use ‘describe’ again but only on the single continuous numerical variable I chose. The contingency tables tell us a raw count of how many responses belong in each level of each categorical variable. Using ‘describe’ again for the continuous numerical variable allows us to narrow in on the variable of interest and gives us summary statistics just for that variable.</p>
+<p>Comments/interpretations of the results are commented within the code below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#contingency tables for categorical variables</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(response) <span class="sc">|&gt;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="co">#more without pre-diabetes/diabetes than with; none with diabetes</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  response                     count
+  &lt;fct&gt;                        &lt;int&gt;
+1 No Diabetes                 218334
+2 Has Prediabetes or Diabetes  35346</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(PhysActivity) <span class="sc">|&gt;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="co">#more that exercise than do not </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  PhysActivity       count
+  &lt;fct&gt;              &lt;int&gt;
+1 Does Not Exercise  61760
+2 Exercises         191920</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Fruits) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="co">#more that eat fruit than do not</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  Fruits              count
+  &lt;fct&gt;               &lt;int&gt;
+1 Does Not Eat Fruit  92782
+2 Eats Fruit         160898</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#numerical summary for the continuous variable</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>psych<span class="sc">::</span><span class="fu">describe</span>(diabetes<span class="sc">$</span>BMI) <span class="co">#average BMI of about 28, which is overweight </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   vars      n  mean   sd median trimmed  mad min max range skew kurtosis   se
+X1    1 253680 28.38 6.61     27   27.68 4.45  12  98    86 2.12       11 0.01</code></pre>
+</div>
+</div>
+<p>This is also an opportunity to visualize these variables individually. I used simple bar charts for the categorical variables that give a visual aid to the contingency tables produced earlier. For the continuous numerical variable, a histogram was more appropriate. This shows the distribution of the responses within the variable of BMI.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#visualizing the data </span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(diabetes<span class="sc">$</span>response, <span class="at">xlab =</span> <span class="st">"Diabetes Status"</span>, <span class="at">ylab =</span> <span class="st">"# of Responses"</span>, <span class="at">main =</span> <span class="st">"Bar Chart of Diabetes Status"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="EDA_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(diabetes<span class="sc">$</span>PhysActivity, <span class="at">xlab =</span> <span class="st">"Physical Activity Status"</span>, <span class="at">ylab =</span> <span class="st">"# of Responses"</span>, <span class="at">main =</span> <span class="st">"Bar Chart of Physical Activity Status"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="EDA_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(diabetes<span class="sc">$</span>Fruits, <span class="at">xlab =</span> <span class="st">"Fruit Consumption Status"</span>, <span class="at">ylab =</span> <span class="st">"# of Responses"</span>, <span class="at">main =</span> <span class="st">"Bar Chart of Fruit Consumption Status"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="EDA_files/figure-html/unnamed-chunk-7-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(diabetes<span class="sc">$</span>BMI, <span class="at">xlab =</span> <span class="st">"BMI"</span>, <span class="at">main =</span> <span class="st">"Histogram of Body Mass Index (BMI) Responses"</span>) <span class="co">#distribution has a tail on the right and a peak on the left. This means that there are more lower BMIs than high.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="EDA_files/figure-html/unnamed-chunk-7-4.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Then, the project instructions tell us to include exploration of the bivariate relationships between explanatory variables and the response. For the categorical variables, I made faceted bar charts to show both the explanatory and response variables in the same graph. The coloring inside the bars show the outcomes of the response variable, while the explanatory variable is on the x axis and the proportion on the y (e.g.&nbsp;the relative frequency of the response in each explanatory category). The table() function after each graph is a numerical way to show this same relationship (rather than mostly visual). Finally, I performed Chi Square tests to see if there was significance in the relationships between the explanatory and the response.</p>
+<p>For the continuous numerical variable, I strove for similar outcomes, but due to the nature of the data used a boxplot and ANOVA instead.</p>
+<p>Comments/interpretations of the results are commented within the code below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#look at bivariate relationships between each of your explanatory variables and the response</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">#physical activity and diabetes status</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(diabetes, <span class="fu">aes</span>(<span class="at">x =</span> PhysActivity, <span class="at">fill =</span> response)) <span class="sc">+</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"fill"</span>) <span class="sc">+</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Activity Status"</span>, <span class="at">y =</span> <span class="st">"Proportion"</span>, <span class="at">fill =</span> <span class="st">"Diabetes Status"</span>, </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">main =</span> <span class="st">"Physical Activity as a Predictor of Diabetes Status"</span>) <span class="co">#the "does not exercise" group had more participants with pre-diabetes/diabetes than the "exercises" group. </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="EDA_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(diabetes<span class="sc">$</span>PhysActivity, diabetes<span class="sc">$</span>response) <span class="co">#numerical representation of the graph above, though not in proportions so must account for that when looking at the numbers.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   
+                    No Diabetes Has Prediabetes or Diabetes
+  Does Not Exercise       48701                       13059
+  Exercises              169633                       22287</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chisq.test</span>(diabetes<span class="sc">$</span>PhysActivity, diabetes<span class="sc">$</span>response) <span class="co">#a small p-value here means that the difference in diabetes status across physical activity status groups is likely not due to chance. In other words, there may be a statistically significant relationship between physical activity level and diabetes status.  </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test with Yates' continuity correction
+
+data:  diabetes$PhysActivity and diabetes$response
+X-squared = 3539.4, df = 1, p-value &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">#fruit consumption and diabetes status</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(diabetes, <span class="fu">aes</span>(<span class="at">x =</span> Fruits, <span class="at">fill =</span> response)) <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"fill"</span>) <span class="sc">+</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Fruit Consumption Status"</span>, <span class="at">y =</span> <span class="st">"Proportion"</span>, <span class="at">fill =</span> <span class="st">"Diabetes Status"</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">main =</span> <span class="st">"Fruit Consumption as a Predictor of Diabetes Status"</span>) <span class="co">#the "does not eat fruit" group had more participants with pre-diabetes/diabetes than the "eats fruit" group. </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="EDA_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(diabetes<span class="sc">$</span>Fruits, diabetes<span class="sc">$</span>response) <span class="co">#numerical representation of the graph above, though not in proportions so must account for that when looking at the numbers.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    
+                     No Diabetes Has Prediabetes or Diabetes
+  Does Not Eat Fruit       78129                       14653
+  Eats Fruit              140205                       20693</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chisq.test</span>(diabetes<span class="sc">$</span>Fruits, diabetes<span class="sc">$</span>response) <span class="co">#a small p-value here means that the difference in diabetes status across fruit consumption groups is likely not due to chance. In other words, there may be a statistically significant relationship between fruit consumption and diabetes status.  </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test with Yates' continuity correction
+
+data:  diabetes$Fruits and diabetes$response
+X-squared = 421.61, df = 1, p-value &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">#BMI and diabetes status </span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(BMI <span class="sc">~</span> response, <span class="at">data =</span> diabetes, <span class="at">ylab =</span> <span class="st">"Diabetes Status"</span>, <span class="at">main =</span> <span class="st">"BMI Value by Diabetes Status"</span>) <span class="co">#the "has pre-diabetes or diabetes" group had a higher average BMI than the "no diabetes" group. </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="EDA_files/figure-html/unnamed-chunk-8-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>anova <span class="ot">&lt;-</span> <span class="fu">aov</span>(BMI <span class="sc">~</span> response, <span class="at">data =</span> diabetes)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(anova) <span class="co">#a small p-value here means that the difference BMI across diabetes status groups is likely not due to chance. In other words, there may be a statistically significant relationship between BMI and diabetes status.  </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                Df   Sum Sq Mean Sq F value Pr(&gt;F)    
+response         1   520963  520963   12517 &lt;2e-16 ***
+Residuals   253678 10558426      42                   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>In EDA summary, the explanatory variables I chose seem to be promising predictors of diabetes status. Modeling will help us understand and leverage these relationships further.</p>
+<p>(At the bottom of the EDA file, give a link to the modeling page: <a href="Modeling.html">Click here for the Modeling Page</a>)</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
