@@ -13,6 +13,7 @@ library("tidyverse")
 library("tidymodels")
 library("caret")
 library("yardstick")
+library("ranger")
 ```
 
 ## Basic Introduction
@@ -134,17 +135,7 @@ tree_bmi <- recipe(response ~ BMI, data = train) |>
 tree_fruits <- recipe(response ~ Fruits, data = train) |>
   step_dummy(Fruits)
 
-treephys_mod <- decision_tree(tree_depth = tune(),
-                              min_n = tune(),
-                              cost_complexity = tune()) |>
-  set_engine("rpart") |>
-  set_mode("classification")
-treebmi_mod <- decision_tree(tree_depth = tune(),
-                              min_n = tune(),
-                              cost_complexity = tune()) |>
-  set_engine("rpart") |>
-  set_mode("classification")
-treefruits_mod <- decision_tree(tree_depth = tune(),
+tree_spec <- decision_tree(tree_depth = tune(),
                               min_n = tune(),
                               cost_complexity = tune()) |>
   set_engine("rpart") |>
@@ -152,13 +143,13 @@ treefruits_mod <- decision_tree(tree_depth = tune(),
 
 treephys_wfl <- workflow() |>
   add_recipe(tree_phys) |>
-  add_model(treephys_mod)
+  add_model(tree_spec)
 treebmi_wfl <- workflow() |>
   add_recipe(tree_bmi) |>
-  add_model(treebmi_mod)
+  add_model(tree_spec)
 treefruits_wfl <- workflow() |>
   add_recipe(tree_fruits) |>
-  add_model(treefruits_mod)
+  add_model(tree_spec)
 
 metrics <- metric_set(mn_log_loss)
 
@@ -200,5 +191,62 @@ The best model using cross-validation and log loss as the metric is the BMI mode
 ## Random Forest
 
 Random forest models take the idea of classification trees one step farther by relying on multiple trees as well as bootstrapped samples to make a prediction. The average result will serve as a final prediction: majority for categorical or mean for numerical. One key to random forest models is that splits occur based on a random subset of predictors each time - the number of predictors is the tuning parameter. In other words, random forests do not use every single predictor at each step. Bootstrapping is key here in order to reduce overfitting and improve the ability for the model to generalize in the context of random forest models. Bootstrapping means that the training data being used for the model will be sampled with replacement in order to get more mileage out of the training data we have. This means that every tree in the forest will be trained with a slightly different version of the training data. The overall ideal is that if there is a very strong predictor, each bootstrapped tree will likely use it for the first split.
+```{r}
+
+rtree_phys <- recipe(response ~ PhysActivity, data = train) |>
+  step_dummy(PhysActivity)
+rtree_bmi <- recipe(response ~ BMI, data = train) |>
+  step_normalize(BMI) 
+rtree_fruits <- recipe(response ~ Fruits, data = train) |>
+  step_dummy(Fruits)
+
+rtree_spec <- rand_forest(mtry = tune()) |>
+  set_engine("ranger") |>
+  set_mode("classification")
+
+rtreephys_wfl <- workflow() |>
+  add_recipe(rtree_phys) |>
+  add_model(rtree_spec)
+rtreebmi_wfl <- workflow() |>
+  add_recipe(rtree_bmi) |>
+  add_model(rtree_spec)
+rtreefruits_wfl <- workflow() |>
+  add_recipe(rtree_fruits) |>
+  add_model(rtree_spec)
+
+rtreephys_fit <- rtreephys_wfl |>
+  tune_grid(resamples = folds, metrics = metric_set(mn_log_loss))
+rtreebmi_fit <- rtreebmi_wfl |>
+  tune_grid(resamples = folds, metrics = metric_set(mn_log_loss))
+rtreefruits_fit <- rtreefruits_wfl |>
+  tune_grid(resamples = folds, metrics = metric_set(mn_log_loss))
+
+best_rphys <- select_best(rtreephys_fit, metric = "mn_log_loss")
+best_rbmi <- select_best(rtreebmi_fit, metric = "mn_log_loss")
+best_rfruits <- select_best(rtreefruits_fit, metric = "mn_log_loss")
+
+rphys_final_wfl <- rtreephys_wfl |>
+  finalize_workflow(best_rphys)
+rbmi_final_wfl <- rtreebmi_wfl |>
+  finalize_workflow(best_rbmi)
+rfruits_final_wfl <- rtreefruits_wfl |>
+  finalize_workflow(best_rfruits)
+
+rphys_final_fit <- rphys_final_wfl |>
+  last_fit(split, metrics = metrics)
+rbmi_final_fit <- rbmi_final_wfl |>
+  last_fit(split, metrics = metrics)
+rfruits_final_fit <- rfruits_final_wfl |>
+  last_fit(split, metrics = metrics)
+
+bind_rows(rphys_final_fit |> collect_metrics() |> mutate(Model = "Physical Activity Model"),
+      rbmi_final_fit |> collect_metrics() |> mutate(Model = "BMI Model"),
+      rfruits_final_fit |> collect_metrics() |> mutate(Model = "Fruits Model")) |>
+  filter(.metric == "mn_log_loss") |>
+  select(Model, Log_Loss = .estimate)
+
+```
+
+The best model using cross-validation and log loss as the metric is the BMI model (smallest log loss).
 
 ## Final Model Selection
