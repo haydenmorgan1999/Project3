@@ -8,6 +8,7 @@ editor_options:
 
 Before beginning: adding libraries so our code runs smoothly (messages and warnings silenced).
 ```{r, message=FALSE, warning=FALSE}
+library("dplyr")
 library("tidyverse")
 library("tidymodels")
 library("caret")
@@ -73,6 +74,8 @@ split <- initial_split(diabetes, prop = 0.7) #project instructions specify 70/30
 train <- training(split)
 test <- testing(split)
 
+folds <- vfold_cv(train, 5)
+
 ```
 
 Again, the ultimate goal of this Modeling file is to create models for predicting diabetes status and then select the model that is best at predicting. Per project instructions, it's ok to use the caret package. We are using logLoss as the metric for evaluation. All model types will use logLoss with a 5 fold cross-validation, and grids of tuning parameters are to be set up where possible. 
@@ -80,10 +83,119 @@ Again, the ultimate goal of this Modeling file is to create models for predictin
 ## Logistic Regression Models
 
 Logistic regression models are indicated for use when the response variable is binary and there is a classification task at hand. For our data, this is indeed the case. With a logistic regression model, we aim to predict the probability that the response is either 0 (does not have diabetes) or 1 (has prediabetes/diabetes). Logistic regression models employ log-odds instead of modeling the response directly (e.g. like linear regression).
+```{r}
+
+log_phys <- recipe(response ~ PhysActivity, data = train)
+log_bmi <- recipe(response ~ BMI, data = train) |>
+  step_normalize(BMI)
+log_fruits <- recipe(response ~ Fruits, data = train)
+
+spec_log <- logistic_reg() |>
+  set_engine("glm")
+
+logphys_wfl <- workflow() |>
+  add_recipe(log_phys) |>
+  add_model(spec_log)
+logbmi_wfl <- workflow() |>
+  add_recipe(log_bmi) |>
+  add_model(spec_log)
+logfruits_wfl <- workflow() |>
+  add_recipe(log_fruits) |>
+  add_model(spec_log)
+
+metrics <- metric_set(mn_log_loss)
+
+logphys_fit <- logphys_wfl |>
+  fit_resamples(folds, metrics = metrics)
+logbmi_fit <- logbmi_wfl |>
+  fit_resamples(folds, metrics = metrics)
+logfruits_fit <- logfruits_wfl |>
+  fit_resamples(folds, metrics = metrics)
+
+rbind(logphys_fit |> collect_metrics(),
+      logbmi_fit |> collect_metrics(),
+      logfruits_fit |> collect_metrics()) |>
+  mutate(Model = c("Physical Activity Model", "BMI Model", "Fruits Model")) |>
+  select(Model, everything())
+
+```
+
+The best model using cross-validation and log loss as the metric is the BMI model (smallest log loss).
 
 ## Classification Tree
 
 Classification tree models are also used when the response variable is categorical, though in this case it doesn't necessarily have to be binary (unlike logistic regression). They are useful in classification tasks and are able to split into branches based on explanatory variables. For example, with our variable about fruit consumption status, there would be separate branches for "eats fruit - yes" and "eats fruit - no". At the end of classification, the prediction is chosen based on which answer is the majority.
+```{r}
+
+tree_phys <- recipe(response ~ PhysActivity, data = train) |>
+  step_dummy(PhysActivity)
+tree_bmi <- recipe(response ~ BMI, data = train) |>
+  step_normalize(BMI) 
+tree_fruits <- recipe(response ~ Fruits, data = train) |>
+  step_dummy(Fruits)
+
+treephys_mod <- decision_tree(tree_depth = tune(),
+                              min_n = tune(),
+                              cost_complexity = tune()) |>
+  set_engine("rpart") |>
+  set_mode("classification")
+treebmi_mod <- decision_tree(tree_depth = tune(),
+                              min_n = tune(),
+                              cost_complexity = tune()) |>
+  set_engine("rpart") |>
+  set_mode("classification")
+treefruits_mod <- decision_tree(tree_depth = tune(),
+                              min_n = tune(),
+                              cost_complexity = tune()) |>
+  set_engine("rpart") |>
+  set_mode("classification")
+
+treephys_wfl <- workflow() |>
+  add_recipe(tree_phys) |>
+  add_model(treephys_mod)
+treebmi_wfl <- workflow() |>
+  add_recipe(tree_bmi) |>
+  add_model(treebmi_mod)
+treefruits_wfl <- workflow() |>
+  add_recipe(tree_fruits) |>
+  add_model(treefruits_mod)
+
+metrics <- metric_set(mn_log_loss)
+
+phys_grid <- treephys_wfl |>
+  tune_grid(resamples = folds, metrics = metrics)
+bmi_grid <- treebmi_wfl |>
+  tune_grid(resamples = folds, metrics = metrics)
+fruits_grid <- treefruits_wfl |>
+  tune_grid(resamples = folds, metrics = metrics)
+
+best_phys <- select_best(phys_grid, metric = "mn_log_loss")
+best_bmi <- select_best(bmi_grid, metric = "mn_log_loss")
+best_fruits <- select_best(fruits_grid, metric = "mn_log_loss")
+
+phys_final_wfl <- treephys_wfl |>
+  finalize_workflow(best_phys)
+bmi_final_wfl <- treebmi_wfl |>
+  finalize_workflow(best_bmi)
+fruits_final_wfl <- treefruits_wfl |>
+  finalize_workflow(best_fruits)
+
+phys_final_fit <- phys_final_wfl |>
+  last_fit(split, metrics = metrics)
+bmi_final_fit <- bmi_final_wfl |>
+  last_fit(split, metrics = metrics)
+fruits_final_fit <- fruits_final_wfl |>
+  last_fit(split, metrics = metrics)
+
+bind_rows(phys_final_fit |> collect_metrics() |> mutate(Model = "Physical Activity Model"),
+      bmi_final_fit |> collect_metrics() |> mutate(Model = "BMI Model"),
+      fruits_final_fit |> collect_metrics() |> mutate(Model = "Fruits Model")) |>
+  filter(.metric == "mn_log_loss") |>
+  select(Model, Log_Loss = .estimate)
+
+```
+
+The best model using cross-validation and log loss as the metric is the BMI model (smallest log loss).
 
 ## Random Forest
 
