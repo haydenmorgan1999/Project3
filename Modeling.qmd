@@ -79,8 +79,14 @@ Again, the ultimate goal of this Modeling file is to create models for predictin
 
 ## Logistic Regression Models
 
+Logistic regression models are indicated for use when the response variable is binary and there is a classification task at hand. For our data, this is indeed the case. With a logistic regression model, we aim to predict the probability that the response is either 0 (does not have diabetes) or 1 (has prediabetes/diabetes). Logistic regression models employ log-odds instead of modeling the response directly (e.g. like linear regression).
+
 ## Classification Tree
 
+Classification tree models are also used when the response variable is categorical, though in this case it doesn't necessarily have to be binary (unlike logistic regression). They are useful in classification tasks and are able to split into branches based on explanatory variables. For example, with our variable about fruit consumption status, there would be separate branches for "eats fruit - yes" and "eats fruit - no". At the end of classification, the prediction is chosen based on which answer is the majority.
+
 ## Random Forest
+
+Random forest models take the idea of classification trees one step farther by relying on multiple trees as well as bootstrapped samples to make a prediction. The average result will serve as a final prediction: majority for categorical or mean for numerical. One key to random forest models is that splits occur based on a random subset of predictors each time - the number of predictors is the tuning parameter. In other words, random forests do not use every single predictor at each step. Bootstrapping is key here in order to reduce overfitting and improve the ability for the model to generalize in the context of random forest models. Bootstrapping means that the training data being used for the model will be sampled with replacement in order to get more mileage out of the training data we have. This means that every tree in the forest will be trained with a slightly different version of the training data. The overall ideal is that if there is a very strong predictor, each bootstrapped tree will likely use it for the first split.
 
 ## Final Model Selection
