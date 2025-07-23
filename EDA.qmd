@@ -6,7 +6,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-Before beginning: adding libraries so our code runs smoothl (messages and warnings silenced).
+Before beginning: adding libraries so our code runs smoothly (messages and warnings silenced).
 ```{r, message=FALSE, warning=FALSE}
 library("dplyr")
 library("ggplot2")
