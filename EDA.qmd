@@ -14,20 +14,27 @@ library("ggplot2")
 ## Introduction Section
 
 **Briefly describe the data and the variables you have to work with.**
-For this project, we are using a specific portion of the Diabetes Health Indicators dataset. The data we are working with is clean data that contains survey responses from the CDC. We are told that the response variable is Diabetes_binary, where 0 means the person does not have diabetes and 1 means the person does have diabetes (or pre-diabetes). The data includes 21 variables total. The project instructions tells us to pick 3 variables (aside from the response) to explore further. I chose to focus on **physical activity (0 means no physical activity in the past 30 days, 1 means the person did engage in physical activity in the past 30 days), body mass index (continuous numeric variable),**, and **fruits (0 means the person does not consume fruit 1 or more times per day, 1 means the person consumes 1 or more fruits each day).**
+For this project, we are using a specific portion of the Diabetes Health Indicators dataset. The data we are working with is clean data that contains survey responses from the CDC. We are told that the response variable is Diabetes_binary, where 0 means the person does not have diabetes, 1 means the person has pre-diabetes, and 2 means the person has diabetes (of note, there were no responses of 2 included in the dataset). The data includes 21 variables total. The project instructions tells us to pick 3 variables (aside from the response) to explore further. I chose to focus on **physical activity (0 means no physical activity in the past 30 days, 1 means the person did engage in physical activity in the past 30 days), body mass index (continuous numeric variable),**, and **fruits (0 means the person does not consume fruit 1 or more times per day, 1 means the person consumes 1 or more fruits each day).**
 
-Now, I will explain a bit about why I chose these three variables to focus on. For the past 3 years, I have worked in a lab at UNC Chapel Hill studying intellectual and developmental disabilities (IDD) in young and older adults, including autism, dementia, etc. One of the projects studies the effects of a physical activity program (intervention) for adults with IDD. In our project narrative, we point to past research that suggests that physical activity (moderate to vigorous) can potentially delay the onset of conditions like diabetes and dementia, which are especially prevalent in IDD communities compared to the general population. One of the measures we include in our study is body mass index and body fat percentage. We place our participants in a machine called the BodPod to investigate body composition, and do this at several time points during the participants' time in the intervention (and/or while they are in the waitlist group for the intervention). We also ask the participants (and their caregivers) questions about their lifestyle in general: e.g., what is their baseline physical activity outside of the intervention? Do they choose to eat fruits and vegetables on their own? How often do they do this? What kind of adaptive behaviors help them complete activities of daily living? So, in summary, though this dataset is not IDD-specific, I chose variables I recognized and am familiar with in thinking about factors at play for diseases like diabetes (and dementias). Because of this research I have been a part of, it's possible that for this general population data, similar trends as those we've studied up to this point for IDD populations may appear. Physical activity, BMI, and fruit consumption may serve as predictors for the presence of diabetes. 
+Now, I will explain a bit about why I chose these three variables to focus on. For the past 3 years, I have worked in a lab at UNC Chapel Hill studying intellectual and developmental disabilities (IDD) in younger and older adults, including autism, dementia, etc. One of the research projects studies the effects of a physical activity program (intervention) for adults with IDD. In our project narrative, we point to past research that suggests that physical activity (moderate to vigorous) can potentially delay the onset of conditions like diabetes and dementia, which are especially prevalent in IDD communities compared to the general population. Some of the measures we include in our study are body mass index and body fat percentage. We place our participants in a machine called the BodPod to investigate body composition, and do this at several time points during the participants' time in the intervention (and/or while they are in the waitlist group for the intervention). We also ask the participants (and their caregivers) questions about their lifestyle in general: e.g., what is the participant's baseline physical activity outside of the intervention? Do they choose to eat fruits and vegetables on their own? How often do they do this? What kind of adaptive behaviors help them complete activities of daily living? So, in summary, though this dataset is not IDD-specific, I chose variables I recognized and am familiar with in thinking about factors at play for diseases like diabetes (and dementias). Because of this research I have been a part of, it's possible that for this general population data, similar trends as those we've studied up to this point for IDD populations may appear. Physical activity, BMI, and fruit consumption may serve as predictors for the presence of diabetes. 
 
 **Describe the purpose of your EDA and ultimate goal of modeling.**
+The purposes of exploratory data analysis (EDA) is to better understand and get to know the data set at hand before applying deeper statistical methods (e.g. for the purposes of inference and prediction). EDA can include data cleaning - the current data set is described as clean already on its website, but just in case I check for missing values (for example) below. If there were missing values, I would drop them from analysis as part of EDA. EDA can also include descriptions and visualizations of the data. This project prompts us to do both univariate and bivariate data exploration to investigate characteristics of certain variables but also give insight on how variables might relate to each other. Below, the data is visualized with plots as well, which is another part of EDA. Ultimately, EDA is a tool used to understand the structure of data, whether there are certain patterns present, whether or not certain variables have relationships with each other, and if there are any strange factors in the data that could skew analysis/modeling later on. 
+
+Modeling (which is detailed in a separate .qmd file in this project) is a mathematical representation of patterns/phenomena present in a data set (per Dr. Post!). In this class and for this project, we work a lot with predictive modeling - that is, trying to create an algorithm that can learn from a data set and then predict what that data in that specific context might look like for future observations. The ultimate goal of modeling is to be able to predict future outcomes. This is very important in many businesses, for example when trying to anticipate market trends to maximize profits. A large part of predictive modeling is getting to know your data through EDA so that you can decide the most appropriate type of model to pick for your data set in the first place. In other words, trying to pick the model that will be most accurate in its predictions in terms of the trends and patterns in the data set. 
 
 ## Data
 
+Here, I am using a relative path to import the indicated diabetes health data set.
 ```{r}
 
-#relative path to import data 
 diabetes <- read.csv("data/diabetes_binary_health_indicators_BRFSS2015.csv")
 
-#convert to factor, add meaningful names
+```
+
+Now, per project instructions, I am converting "a lot of the variables [in the data set] to factors with meaningful level names." I am making sure to use factor() only on the categorical variables that had labeled levels, and not the continuous numerical variables for which level-naming would not make sense.
+```{r}
+
 diabetes$response <- factor(diabetes$Diabetes_binary, levels = c(0, 1, 2), labels = c("No Diabetes", "Has Prediabetes", "Has Diabetes")) #response variable is Diabetes_binary
 
 diabetes$HighBP <- factor(diabetes$HighBP, levels = c(0, 1), labels = c("No High BP", "High BP")) 
@@ -66,12 +73,21 @@ diabetes$Education <- factor(diabetes$Education, levels = c(1:6), labels = c("No
 
 diabetes$Income <- factor(diabetes$Income, levels = c(1:8), labels = c("Less than $10,000", "$10,000 - less than $15,000", "$15,000 - less than $20,000", "$20,000 - less than $25,000", "$25,000 - less than $35,000", "$35,000 - less than $50,000", "$50,000 - less than $75,000", "More than $75,000"))
   
-print(head(diabetes, n = 5))
+print(head(diabetes, n = 5)) #this shows some of the labeling done
+
+```
+
+Next, the instructions say to "check on missingness, etc.". We already know from the website that the data set is clean so it makes sense that there is no missing data here. There is no need to remove any missing rows.
+```{r}
 
 #check missingness- no drop_na() needed
 colSums(is.na(diabetes))
 
-#instructions said "check on missingness, etc." so here is something "etc." to do (based on EDA lecture/class materials)
+```
+
+Now to address the "etc." part of the instructions above. These are some other EDA procedures we have discussed in class. 'describe' shows various descriptive statistics for each variable in the data set, and 'summary' is similar but a little less overwhelming - basically, the two functions have different focuses in describing and summarizing data.
+```{r}
+
 psych::describe(diabetes)
 
 summary(diabetes)
@@ -80,64 +96,82 @@ summary(diabetes)
 
 ## Summarizations
 
-Produce meaningful summary statistic and plots about the data you are working with (especially as it relates to your response.) Do EDA on full data even though we haven't split into training/test data first. Be sure to have a narrative about what you are exploring and what the summaries and graphs you created say about the relationships in your data. 
-```{r}
+Per the project instructions, this is the goal of the Summarizations section: Produce meaningful summary statistic and plots about the data you are working with (especially as it relates to your response.) Do EDA on full data even though we haven't split into training/test data first. Be sure to have a narrative about what you are exploring and what the summaries and graphs you created say about the relationships in your data. 
 
-#do at least one univariate exploration on your 4 variables
+The instructions also tell us to do at least one univariate exploration on the 4 variables. Below, I produce contingency tables for the categorical variables (including the response) and use 'describe' again but only on the single continuous numerical variable I chose. The contingency tables tell us a raw count of how many responses belong in each level of each categorical variable. Importantly, this is one way to confirm that there are, in fact, no responses of "2" (having diabetes) in the response variable. Using 'describe' again for the continuous numerical variable allows us to narrow in on the variable of interest and gives us summary statistics just for that variable. 
+
+Comments/interpretations of the results are commented within the code below.
+```{r}
 
 #contingency tables for categorical variables
 diabetes |>
   group_by(response) |>
-  summarize(count = n())
+  summarize(count = n()) #more without pre-diabetes than with; none with diabetes
 
 diabetes |>
   group_by(PhysActivity) |>
-  summarize(count = n())
+  summarize(count = n()) #more that exercise than do not 
 
 diabetes |>
   group_by(Fruits) |>
-  summarize(count = n())
+  summarize(count = n()) #more that eat fruit than do not
 
 #numerical summary for the continuous variable
-psych::describe(diabetes$BMI)
+psych::describe(diabetes$BMI) #average BMI of about 28, which is overweight 
+
+```
+
+This is also an opportunity to visualize these variables individually. I used simple bar charts for the categorical variables that give a visual aid to the contingency tables produced earlier. For the continuous numerical variable, a histogram was more appropriate. This shows the distribution of the responses within the variable of BMI.
+```{r}
 
 #visualizing the data 
-plot(diabetes$response)
+plot(diabetes$response, xlab = "Diabetes Status", ylab = "# of Responses", main = "Bar Chart of Diabetes Status")
 
-plot(diabetes$PhysActivity)
+plot(diabetes$PhysActivity, xlab = "Physical Activity Status", ylab = "# of Responses", main = "Bar Chart of Physical Activity Status")
 
-plot(diabetes$Fruits)
+plot(diabetes$Fruits, xlab = "Fruit Consumption Status", ylab = "# of Responses", main = "Bar Chart of Fruit Consumption Status")
 
-hist(diabetes$BMI)
+hist(diabetes$BMI, xlab = "BMI", main = "Histogram of Body Mass Index (BMI) Responses") #distribution has a tail on the right and a peak on the left. This means that there are more lower BMIs than high.
+
+```
+
+Then, the project instructions tell us to include exploration of the bivariate relationships between explanatory variables and the response. For the categorical variables, I made faceted bar charts to show both the explanatory and response variables in the same graph. The coloring inside the bars show the outcomes of the response variable, while the explanatory variable is on the x axis and the proportion on the y (e.g. the relative frequency of the response in each explanatory category). The table() function after each graph is a numerical way to show this same relationship (rather than mostly visual). Finally, I performed Chi Square tests to see if there was significance in the relationships between the explanatory and the response. 
+
+For the continuous numerical variable, I strove for similar outcomes, but due to the nature of the data used a boxplot and ANOVA instead.
+
+Comments/interpretations of the results are commented within the code below.
+```{r}
 
 #look at bivariate relationships between each of your explanatory variables and the response
 
 #physical activity and diabetes status
 ggplot(diabetes, aes(x = PhysActivity, fill = response)) +
   geom_bar(position = "fill") +
-  labs(x = "Physical Activity Level", y = "Proportion", fill = "Diabetes Status", 
-       main = "Physical Activity as a Predictor of Diabetes Status")
+  labs(x = "Physical Activity Status", y = "Proportion", fill = "Diabetes Status", 
+       main = "Physical Activity as a Predictor of Diabetes Status") #the "does not exercise" group had more participants with pre-diabetes than the "exercises" group. 
 
-table(diabetes$PhysActivity, diabetes$response)
+table(diabetes$PhysActivity, diabetes$response) #numerical representation of the graph above, though not in proportions so must account for that when looking at the numbers.
 
-chisq.test(diabetes$PhysActivity, diabetes$response)
+chisq.test(diabetes$PhysActivity, diabetes$response) #a small p-value here means that the difference in diabetes status across physical activity status groups is likely not due to chance. In other words, there may be a statistically significant relationship between physical activity level and diabetes status.  
 
 #fruit consumption and diabetes status
-table(diabetes$Fruits, diabetes$response)
-
 ggplot(diabetes, aes(x = Fruits, fill = response)) +
   geom_bar(position = "fill") +
-  labs(x = "Fruit Consumption", y = "Proportion", fill = "Diabetes Status",
-       main = "Fruit Consumption as a Predictor of Diabetes Status")
+  labs(x = "Fruit Consumption Status", y = "Proportion", fill = "Diabetes Status",
+       main = "Fruit Consumption as a Predictor of Diabetes Status") #the "does not eat fruit" group had more participants with pre-diabetes than the "eats fruit" group. 
 
-chisq.test(diabetes$Fruits, diabetes$response)
+table(diabetes$Fruits, diabetes$response) #numerical representation of the graph above, though not in proportions so must account for that when looking at the numbers.
+
+chisq.test(diabetes$Fruits, diabetes$response) #a small p-value here means that the difference in diabetes status across fruit consumption groups is likely not due to chance. In other words, there may be a statistically significant relationship between fruit consumption and diabetes status.  
 
 #BMI and diabetes status 
-boxplot(BMI ~ response, data = diabetes, ylab = "Diabetes Status", main = "BMI Value by Diabetes Status")
+boxplot(BMI ~ response, data = diabetes, ylab = "Diabetes Status", main = "BMI Value by Diabetes Status") #the "has pre-diabetes" group had a higher average BMI than the "no diabetes" group. 
 
 anova <- aov(BMI ~ response, data = diabetes)
-summary(anova)
+summary(anova) #a small p-value here means that the difference BMI across diabetes status groups is likely not due to chance. In other words, there may be a statistically significant relationship between BMI and diabetes status.  
 
 ```
+
+In EDA summary, the explanatory variables I chose seem to be promising predictors of diabetes status. Modeling will help us understand and leverage these relationships further. 
 
 At the bottom of the EDA file, give a link to the modeling page: [Click here for the Modeling Page](Modeling.html)
