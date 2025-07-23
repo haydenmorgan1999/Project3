@@ -75,7 +75,7 @@ test <- testing(split)
 
 ```
 
-The goal is to create models for predicting Diabetes_binary (ok to use caret package). Use logLoss as metric to evaluate. For all model types use logLoss with 5 fold CV to select best model. Set up your own grid of tuning parameters in any model where possible. 
+Again, the ultimate goal of this Modeling file is to create models for predicting diabetes status and then select the model that is best at predicting. Per project instructions, it's ok to use the caret package. We are using logLoss as the metric for evaluation. All model types will use logLoss with a 5 fold cross-validation, and grids of tuning parameters are to be set up where possible. 
 
 ## Logistic Regression Models
 
