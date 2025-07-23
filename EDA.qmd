@@ -174,4 +174,4 @@ summary(anova) #a small p-value here means that the difference BMI across diabet
 
 In EDA summary, the explanatory variables I chose seem to be promising predictors of diabetes status. Modeling will help us understand and leverage these relationships further. 
 
-At the bottom of the EDA file, give a link to the modeling page: [Click here for the Modeling Page](Modeling.html)
+(At the bottom of the EDA file, give a link to the modeling page: [Click here for the Modeling Page](Modeling.html))
