@@ -250,3 +250,18 @@ bind_rows(rphys_final_fit |> collect_metrics() |> mutate(Model = "Physical Activ
 The best model using cross-validation and log loss as the metric is the BMI model (smallest log loss).
 
 ## Final Model Selection
+
+```{r}
+
+logbmi_final_fit <- logbmi_wfl |>
+  last_fit(split, metrics = metric_set(mn_log_loss))
+
+bind_rows(logbmi_final_fit |> collect_metrics() |> mutate(Model = "Logistic Regression Model"),
+      bmi_final_fit |> collect_metrics() |> mutate(Model = "Classification Tree Model"),
+      rbmi_final_fit |> collect_metrics() |> mutate(Model = "Random Forest Model")) |>
+  filter(.metric == "mn_log_loss") |>
+  select(Model, Log_Loss = .estimate)
+
+```
+
+The best model using cross-validation and log loss as the metric is the Random Forest BMI model (smallest log loss).
