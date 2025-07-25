@@ -1,3 +1,4 @@
+#load libraries
 library("plumber")
 library("dplyr")
 library("tidyverse")
@@ -68,8 +69,10 @@ rtreephys_wfl <- workflow() |>
   add_recipe(rtree_phys) |>
   add_model(rtree_spec)
 
+metrics <- metric_set(mn_log_loss)
+
 rtreephys_fit <- rtreephys_wfl |>
-  tune_grid(resamples = folds, metrics = metric_set(mn_log_loss))
+  tune_grid(resamples = folds, metrics = metrics)
 
 best_rphys <- select_best(rtreephys_fit, metric = "mn_log_loss")
 
@@ -90,18 +93,23 @@ diabetes |>
 #* @param BMI 2nd predictor
 #* @get /pred
 function(PhysActivity = "Exercises", BMI = 28.4){
-  data <- tibble(
+  pred_data <- data.frame(
     PhysActivity = factor(PhysActivity, levels = c("Does Not Exercise", "Exercises")),
     BMI = as.numeric(BMI)
   )
-  predict(rphys_final_fit, data, type = "prob")
+  
+  fitted_wfl <- extract_workflow(rphys_final_fit)
+  
+  prediction <- predict(fitted_wfl, pred_data, type = "prob")
+  
+  return(prediction)
 
 }
 
 #Three example function calls to copy/paste
-# 1 (default): http://localhost:PORT/pred
-# 2: http://localhost:PORT/pred?PhysActivity=Exercises&BMI=20
-# 3: http://localhost:PORT/pred?PhysActivity=Does%20Not%20Exercise&BMI=35
+# 1 (default): http://127.0.0.1:17124/pred
+# 2: http://127.0.0.1:17124/pred?PhysActivity=Exercises&BMI=20
+# 3: http://127.0.0.1:17124/pred?PhysActivity=Does%20Not%20Exercise&BMI=35
 
 #* No inputs. Output is a message.
 #* @get /info

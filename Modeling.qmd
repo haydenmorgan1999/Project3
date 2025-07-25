@@ -143,8 +143,8 @@ tree <- recipe(response ~ PhysActivity + BMI, data = train) |>
   step_dummy(PhysActivity) |> #do need step_dummy() for this categorical variable
   step_normalize(BMI)
 
-tree_spec <- decision_tree(tree_depth = 5, #chose this value at random
-                              min_n = 10, #chose this value at random 
+tree_spec <- decision_tree(tree_depth = 5, 
+                              min_n = 10, 
                               cost_complexity = tune()) |>
   set_engine("rpart") |>
   set_mode("classification")
@@ -212,13 +212,15 @@ rtreefruits_wfl <- workflow() |>
   add_recipe(rtree_fruits) |>
   add_model(rtree_spec)
 
+metrics <- metric_set(mn_log_loss)
+
 #using folds for runing for the models 
 rtreephys_fit <- rtreephys_wfl |>
-  tune_grid(resamples = folds, metrics = metric_set(mn_log_loss))
+  tune_grid(resamples = folds, metrics = metrics)
 rtreebmi_fit <- rtreebmi_wfl |>
-  tune_grid(resamples = folds, metrics = metric_set(mn_log_loss))
+  tune_grid(resamples = folds, metrics = metrics)
 rtreefruits_fit <- rtreefruits_wfl |>
-  tune_grid(resamples = folds, metrics = metric_set(mn_log_loss))
+  tune_grid(resamples = folds, metrics = metrics)
 
 #choosing the best of each model 
 best_rphys <- select_best(rtreephys_fit, metric = "mn_log_loss")
