@@ -17,12 +17,14 @@ library("ranger")
 ```
 
 ## Basic Introduction
-Again, for this project we are using a data set about diabetes health. The data comes from the CDC, and the set we are using is clean data. We are told that we have a binary response variable called Diabetes_binary, which tells us if the person does not have diabetes or has prediabetes/diabetes. There are 21 variables total, but for the purpose of this project we are only choosing 3 variables in addition to the response variable to focus on. I chose to focus on **physical activity (0 means no physical activity in the past 30 days, 1 means the person did engage in physical activity in the past 30 days), body mass index (continuous numeric variable),**, and **fruits (0 means the person does not consume fruit 1 or more times per day, 1 means the person consumes 1 or more fruits each day).**
+Again, for this project we are using a data set about diabetes health. The data comes from the CDC, and the set we are using is clean data. We are told that we have a binary response variable called Diabetes_binary, which tells us if the person does not have diabetes or has pre-diabetes/diabetes. There are 21 variables total, but for the purpose of this project we are only choosing 3 variables in addition to the response variable to focus on. I chose to focus on **physical activity (0 means no physical activity in the past 30 days, 1 means the person did engage in physical activity in the past 30 days), body mass index (continuous numeric variable),**, and **fruits (0 means the person does not consume fruit 1 or more times per day, 1 means the person consumes 1 or more fruits each day).**
 
-In the EDA .qmd file, I explained why I chose these three variables specifically already (you can go back to the EDA page [here](EDA.html)). So here, I will talk a little bit about the difference between this Modeling file and the EDA file completed previously. Exploratory data analysis has already been performed so that we have a better understanding and vision of the data set overall. Now, attention is turned to modeling so that we can look at historical data and try to predict what similar data might look like in the future. There are many different types of models that can be selected for a data set, and this project will cover and explain 4 of them. The goal of this document is to choose the model that best fits the data set at hand (e.g. select the model that does the best job at predicting data in this context).
+In the EDA .qmd file, I explained why I chose these three variables specifically already (you can go back to the EDA page [here](EDA.html)). So here, I will talk a little bit about the difference between this Modeling file and the EDA file completed previously. Exploratory data analysis has already been performed so that we have a better understanding and vision of the data set overall. Now, attention is turned to modeling so that we can look at historical data and try to predict what similar data might look like in the future. There are many different types of models that can be selected for a data set, and this project will cover and explain 4 of them specifically. The goal of this document is to choose the model that best fits the data set at hand (e.g. select the model that does the best job at predicting data in this context).
 
 Here, I am presenting the clean/factored data set again (from the EDA.qmd file) for use in the Modeling.qmd file:
 ```{r}
+
+#this code is repeated from the EDA file
 
 diabetes <- read.csv("data/diabetes_binary_health_indicators_BRFSS2015.csv")
 
@@ -135,7 +137,7 @@ The best model using cross-validation and log loss as the metric includes predic
 
 Classification tree models are also used when the response variable is categorical, though in this case it doesn't necessarily have to be binary (unlike logistic regression). They are useful in classification tasks and are able to split into branches based on explanatory variables. For example, with our variable about fruit consumption status, there would be separate branches for "eats fruit - yes" and "eats fruit - no". At the end of classification, the prediction is chosen based on which answer is the majority.
 
-Of note, the logistic regression model instructions above prompted us to fit three different models and choose from the three. For this task, we are only fitting ONE classification tree that has varying values for the complexity parameter - then choosing the best model. So there will not be three separate models for this section. 
+Of note, the logistic regression model instructions above prompted us to fit three different models and choose from the three. For this classification tree task, we are only fitting ONE model that has varying values for the complexity parameter - then choosing the best model using log loss after tuning the complexity parameter. So there will not be three separate models for this section in the same way as appeared in the last section. 
 ```{r}
 
 #again, only using one model here (I chose the model that performed the best in the logreg section) but altering the complexity parameter later on
@@ -165,7 +167,7 @@ tune <- tune_grid(
   metrics = metrics
 )
 
-#this should select the best model based on cost complexity 
+#this should select the best model based on cost complexity/log loss  
 best_tree <- select_best(tune, metric = "mn_log_loss")
 
 tree_final_wfl <- tree_wfl |>
@@ -254,7 +256,7 @@ The best model using cross-validation and log loss as the metric includes predic
 
 ## Final Model Selection
 
-Now that we have identifie dthe best model from the three model types above, we will compare the models to each other based on the log loss metric to pick the best model out of the three types.
+Now that we have identified the best model from the three model types above, we will compare the models to each other based on the log loss metric to pick the best model out of the three types.
 ```{r}
 
 #the logreg model is the only one that hasn't undergone a last fit yet, so doing that now 

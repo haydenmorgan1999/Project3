@@ -48,7 +48,7 @@ diabetes$Education <- factor(diabetes$Education, levels = c(1:6), labels = c("No
 
 diabetes$Income <- factor(diabetes$Income, levels = c(1:8), labels = c("Less than $10,000", "$10,000 - less than $15,000", "$15,000 - less than $20,000", "$20,000 - less than $25,000", "$25,000 - less than $35,000", "$35,000 - less than $50,000", "$50,000 - less than $75,000", "More than $75,000"))
 
-#fit the best model
+#fit the best model; code repeated from the Modeling file 
 set.seed(100) #chose 100 because it is a similar value to our HW5 assignment 
 
 split <- initial_split(diabetes, prop = 0.7) #project instructions specify 70/30 split 
@@ -88,6 +88,7 @@ mean(diabetes$BMI) #for fxn below (default)
 diabetes |>
   count(PhysActivity) #also for fxn below (default)
 
+#Endpoint 1
 #* Take in any predictors used in the 'best' model. Include default values for each that is the mean of the variable's values (numeric) or the most prevalent class (categorical).
 #* @param PhysActivity 1st predictor
 #* @param BMI 2nd predictor
